@@ -1,0 +1,24 @@
+{
+  "name": "annabelle",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/pawelpiotrowski/annabelle.git"
+  },
+  "author": "Pawel Piotrowski <pawel@html5apprentice.com>",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/pawelpiotrowski/annabelle#readme",
+  "devDependencies": {
+    "chalk": "^1.1.0",
+    "minimist": "^1.1.3",
+    "moment": "^2.10.6",
+    "moment-range": "^2.0.3",
+    "moment-recur": "^1.0.5",
+    "sfx": "^0.1.1"
+  }
+}

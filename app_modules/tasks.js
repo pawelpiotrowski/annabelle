@@ -1,0 +1,88 @@
+var _ = require('lodash');
+
+var tasks = (function() {
+    
+    const TASKS_DIR = './tasks/';
+    const AVAILABLE_TASKS = [
+        {
+            name: 'visioneers',
+            useCallback: 'no' // 'yes', 'no', 'only'
+        },
+        {
+            name: 'connectivity',
+            useCallback: 'no' // 'yes', 'no', 'only'
+        }
+    ];
+    const DEFAULT_TASK_INDEX = 0;
+    
+    var tasks = {};
+    tasks.slugs = [];
+    tasks.objects = [];
+    tasks.active = [];
+    tasks.modules = {};
+    
+    AVAILABLE_TASKS.forEach(function(task) {
+        var thisTask = _.clone(task);
+        tasks.objects.push(thisTask);
+        tasks.slugs.push(task.name);
+    });
+    
+    var getTaskSlug = function(taskOrSlug) {
+        var defaultSlug = tasks.slugs[DEFAULT_TASK_INDEX];
+        if(!taskOrSlug) {
+            return defaultSlug;
+        }
+        var taskSlug = (typeof taskOrSlug === 'object') ? taskOrSlug.name : taskOrSlug;
+        var taskIndex = tasks.slugs.indexOf(taskSlug);
+        return (taskIndex > -1) ? taskSlug : defaultSlug;
+    };
+    
+    function getTaskModule(taskSlug) {
+        if(!tasks.modules[taskSlug]) {
+            tasks.modules[taskSlug] = require(TASKS_DIR + taskSlug);
+        }
+        return tasks.modules[taskSlug];
+    }
+    
+    function getTasks() {
+        return tasks;
+    }
+    
+    function deactivateTask(task) {
+        var taskSlug = getTaskSlug(task);
+        if(tasks.active.indexOf(taskSlug) > -1) {
+            tasks.active.push(taskSlug);
+            tasks.active = _.without(tasks.active, taskSlug);
+        }
+        return tasks.active;
+    }
+    
+    function activateTask(task) {
+        var taskSlug = getTaskSlug(task);
+        if(tasks.active.indexOf(taskSlug) < 0) {
+            tasks.active.push(taskSlug);
+        }
+        return tasks.active;
+    }
+    
+    function getTask(task) {
+        var taskSlug = getTaskSlug(task);
+        return getTaskModule(taskSlug);
+    }
+    
+    function tasksExec() {
+        var msg = 'EXEC TASKS!!!';
+        console.log(msg);
+        msg = null;
+    }
+    
+    return {
+        activateTask: activateTask,
+        deactivateTask: deactivateTask,
+        getTasks: getTasks,
+        tasksExec: tasksExec
+    };
+
+})();
+
+module.exports = tasks;

@@ -2,40 +2,69 @@ var chalk = require('chalk');
 var moment = require('moment');
 
 var Annabelle = (function init() {
-    const HEART_BEAT_MS = 100;
-    const TASKS = 'tasks';
+    const HEART_BEAT_MS = 1000;
+    const MODULES_DIR = './app_modules/';
     
-    //const INTERVAL_UNITS = 'minutes';
-    
-    var alive = false;
+    var alive = null;
     var config = {
         interval: 1,
+        intervalUnits: 'minutes',
         voice: ''
     };
-    config[TASKS] = [];
+    config.tasks = [];
     
     var heart;
     var heartBeat = (function beat() {
         if(!alive) {
             return;
         }
-        var t = moment();
-        var displayT = function() {
-            var l = 'Testing ' + t._d + ' Ab ab lorem multos aute ea duis doctrina quo eram multos ubi ut nam tractavissent sed arbitror de culpa proident se doctrina sempiternum Expetendis aute cupidatat probant an deserunt noster ex cupidatat exquisitaque, ut qui sempiternum, nulla qui est fore mentitum ne non eram tempor, offendit ad sint offendit e nostrud amet iudicem mentitum, quis transferrem aliquip aute litteris. Nulla singulis cupidatat quo proident summis aliquip, e esse eiusmod hic o eram quae quae nescius. Culpa quamquam qui reprehenderit sed incididunt a elit aliquip. Eiusmod ab esse ullamco. Si quis offendit, est cernantur et incididunt, nescius labore magna se eram, te quem vidisse distinguantur, quo multos consequat philosophari, ullamco nisi excepteur doctrina, te arbitror relinqueret et admodum aliqua laboris ingeniis. Eiusmod quo malis.';
-            console.log(l);
-            t = null;
-            l = null;
-        };
-        process.nextTick(displayT);
+        process.nextTick(checkTasks);
         heart = setTimeout(beat, HEART_BEAT_MS);
     });
+    
+    var tasks = require(MODULES_DIR + 'tasks');
+    var tasksActive = [];
+    var taskNextExecTime = null;
+    var taskNextExecTimeSet = function(fromMoment) {
+        var from = (moment.isMoment(fromMoment)) ? fromMoment : moment();
+        taskNextExecTime = moment(from).add(config.interval, config.intervalUnits);
+        from = null;
+    };
+    
+    function checkTasks() {
+        if(!tasks.getTasks().active.length) {
+            return;
+        }
+        
+        var now = moment();
+        if(moment(now).isAfter(taskNextExecTime) || moment(now).isSame(taskNextExecTime)) {
+            var msg = 'Exec time @ ' + now._d;
+            taskNextExecTimeSet(now);
+            console.log(chalk.red(msg));
+            tasks.tasksExec();
+            msg = null;
+        }
+        
+        now = null;
+    }
+    
+    function setTasks() {
+        if(!config.tasks.length) {
+            tasksActive = tasks.activateTask();    
+        } else {
+            config.tasks.forEach(function(task) {
+                tasks.activateTask(task);
+            });
+            tasksActive = tasks.getTasks().active;
+        }
+    }
     
     function setConfig(options) {
         if(!options || typeof options !== 'object') {
             return;
         }
         
-        var setConfigMsg = 'AGGIE CONFIG ->';
+        var setConfigMsg = 'ANNABELLE CONFIG ->';
         
         Object.keys(config).forEach(function(configKey) {
             if(options[configKey]) {
@@ -53,14 +82,16 @@ var Annabelle = (function init() {
         if(alive) {
             return;
         }
-        alive = true;
+        alive = moment();
         var initArgs = require('minimist')(process.argv.slice(2));
-        var initMsg = 'START AGGIE @ ' + moment()._d;
+        var initMsg = 'START ANNABELLE @ ' + moment()._d;
         if(initArgs._.length) {
-            initArgs[TASKS] = initArgs._.slice();
+            initArgs.tasks = initArgs._.slice();
             initArgs._ = null;
         }
         setConfig(initArgs);
+        setTasks();
+        taskNextExecTimeSet();
         heartBeat();
         console.log(chalk.red.bold(initMsg));
         initArgs = null;

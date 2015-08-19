@@ -1,4 +1,6 @@
+var _ = require('lodash');
 var chalk = require('chalk');
+var hub = require.main.require('./hub');
 var moment = require('moment');
 
 var Annabelle = (function init() {
@@ -22,12 +24,36 @@ var Annabelle = (function init() {
         heart = setTimeout(beat, HEART_BEAT_MS);
     });
     
+    var hubListenersHandler = {
+        message: {
+            fn: function(hubEvent) {
+                var msg = 'Got hub message: ';
+                console.log(msg, hubEvent);
+                msg = null;
+                hubEvent = null;
+            },
+            isSet: false,
+            slug: 'message'
+        },
+        schedule: {
+            fn: function(hubEvent) {
+                var msg = 'Got hub schedule: ';
+                console.log(msg, hubEvent);
+                msg = null;
+                hubEvent = null;
+            },
+            isSet: false,
+            slug: 'schedule'
+        }
+    };
+    
     var tasks = require(MODULES_DIR + 'tasks');
     var tasksActive = [];
     var taskNextExecTime = null;
     var taskNextExecTimeSet = function(fromMoment) {
         var from = (moment.isMoment(fromMoment)) ? fromMoment : moment();
         taskNextExecTime = moment(from).add(config.interval, config.intervalUnits);
+        taskNextExecTime = taskNextExecTime.milliseconds(0);
         from = null;
     };
     
@@ -43,9 +69,22 @@ var Annabelle = (function init() {
             console.log(chalk.red(msg));
             tasks.tasksExec();
             msg = null;
+            now = null;
+            return;
         }
         
+        emitTasksTick();
         now = null;
+    }
+    
+    function emitTasksTick() {
+        if(!hub.listeners('taskstick', true)) {
+            return;
+        }
+        var msg = 'Emmiting taskstick';
+        console.log(msg);
+        hub.emit('taskstick');
+        msg = null;
     }
     
     function setTasks() {
@@ -78,6 +117,28 @@ var Annabelle = (function init() {
         options = null;
     }
     
+    hub.on('connected', function(hubEvent) {
+        console.log(hubEvent);
+    });
+    
+    function removeHubListeners() {
+        _.forIn(hubListenersHandler, function(handlerObj, handlerSlug) {
+            if(handlerObj.isSet) {
+                hub.removeListener(handlerSlug, handlerObj.fn);
+                handlerObj.isSet = false;
+            }
+        });
+    }
+    
+    function setHubListeners() {
+        _.forIn(hubListenersHandler, function(handlerObj, handlerSlug) {
+            if(!handlerObj.isSet) {
+                hub.on(handlerSlug, handlerObj.fn);
+                handlerObj.isSet = true;
+            }
+        });
+    }
+    
     function initiate() {
         if(alive) {
             return;
@@ -93,6 +154,7 @@ var Annabelle = (function init() {
         setTasks();
         taskNextExecTimeSet();
         heartBeat();
+        setHubListeners();
         console.log(chalk.red.bold(initMsg));
         initArgs = null;
         initMsg = null;

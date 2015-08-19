@@ -1,19 +1,22 @@
 var _ = require('lodash');
+var chalk = require('chalk');
 
 var tasks = (function() {
-    
-    const TASKS_DIR = './tasks/';
+    const STR_NO = 'no';
+    const STR_ONLY = 'only';
+    const STR_YES = 'yes';
     const AVAILABLE_TASKS = [
         {
             name: 'visioneers',
-            useCallback: 'no' // 'yes', 'no', 'only'
+            useEmitter: STR_NO // 'yes', 'no', 'only'
         },
         {
             name: 'connectivity',
-            useCallback: 'no' // 'yes', 'no', 'only'
+            useEmitter: STR_ONLY // 'yes', 'no', 'only'
         }
     ];
     const DEFAULT_TASK_INDEX = 0;
+    const TASKS_DIR = './tasks/';
     
     var tasks = {};
     tasks.slugs = [];
@@ -23,6 +26,7 @@ var tasks = (function() {
     
     AVAILABLE_TASKS.forEach(function(task) {
         var thisTask = _.clone(task);
+        thisTask.initiated = false;
         tasks.objects.push(thisTask);
         tasks.slugs.push(task.name);
     });
@@ -72,8 +76,22 @@ var tasks = (function() {
     
     function tasksExec() {
         var msg = 'EXEC TASKS!!!';
-        console.log(msg);
+        console.log(chalk.green(msg));
         msg = null;
+        
+        tasks.active.forEach(function(activeTaskSlug) {
+            var thisTaskIndex = tasks.slugs.indexOf(activeTaskSlug);
+            var thisTaskObject = tasks.objects[thisTaskIndex];
+            
+            if(!thisTaskObject.initiated || thisTaskObject.useEmitter !== STR_ONLY) {
+                process.nextTick(getTask(activeTaskSlug).execTask);
+                thisTaskObject.initiated = true;
+            }
+            
+            thisTaskIndex = null;
+            thisTaskObject = null;
+            
+        });
     }
     
     return {

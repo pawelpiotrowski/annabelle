@@ -6,11 +6,14 @@ var moment = require('moment');
 var Annabelle = (function init() {
     const HEART_BEAT_MS = 1000;
     const MODULES_DIR = './app_modules/';
+    const ASSETS_DIR = './assets/';
     
     var alive = null;
+    var announcer = require(MODULES_DIR + 'announcer').init(ASSETS_DIR);
     var config = {
         interval: 1,
         intervalUnits: 'minutes',
+        onStart: true,
         voice: ''
     };
     config.tasks = [];
@@ -27,8 +30,9 @@ var Annabelle = (function init() {
     var hubListenersHandler = {
         message: {
             fn: function(hubEvent) {
-                var msg = 'Got hub message: ';
-                console.log(msg, hubEvent);
+                var msg = 'Got hub message from: ' + hubEvent.from;
+                console.log(chalk.blue(msg));
+                announcer.announce(hubEvent.payload);
                 msg = null;
                 hubEvent = null;
             },
@@ -112,14 +116,12 @@ var Annabelle = (function init() {
             setConfigMsg += ' ' + configKey + ': "' + config[configKey] + '"';
         });
         
+        announcer.setVoice(config.voice);
+        
         console.log(chalk.red.bold(setConfigMsg));
         setConfigMsg = null;
         options = null;
     }
-    
-    hub.on('connected', function(hubEvent) {
-        console.log(hubEvent);
-    });
     
     function removeHubListeners() {
         _.forIn(hubListenersHandler, function(handlerObj, handlerSlug) {
@@ -155,6 +157,9 @@ var Annabelle = (function init() {
         taskNextExecTimeSet();
         heartBeat();
         setHubListeners();
+        if(config.onStart) {
+            tasks.tasksExec();
+        }
         console.log(chalk.red.bold(initMsg));
         initArgs = null;
         initMsg = null;

@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Client</title>
+        <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+    </head>
+    <body>
+        <p>
+            Message:
+        </p>
+        <div id="message"></div>
+        <script>
+            // creating a new websocket
+            var socket = io.connect('http://localhost:8000');
+            var msg = document.getElementById('message');
+            socket.on('notification', function (data) {
+                msg.innerHTML = 'Got message!';
+                setTimeout(function() {
+                    msg.innerHTML = data;
+                }, 1000);
+            });
+        </script>
+    </body>
+</html>

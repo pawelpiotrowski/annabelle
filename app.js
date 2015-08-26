@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var chalk = require('chalk');
+var fork = require('child_process').fork;
 var hub = require.main.require('./hub');
 var moment = require('moment');
 
@@ -18,6 +19,9 @@ var Annabelle = (function init() {
     };
     config.tasks = [];
     
+    
+    var server = fork('server.js');
+
     var heart;
     var heartBeat = (function beat() {
         if(!alive) {
@@ -33,6 +37,7 @@ var Annabelle = (function init() {
                 var msg = 'Got hub message from: ' + hubEvent.from;
                 console.log(chalk.blue(msg));
                 announcer.announce(hubEvent.payload);
+                server.send(hubEvent.payload);
                 msg = null;
                 hubEvent = null;
             },

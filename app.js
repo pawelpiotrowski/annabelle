@@ -8,6 +8,7 @@ var Annabelle = (function init() {
     const HEART_BEAT_MS = 1000;
     const MODULES_DIR = './app_modules/';
     const ASSETS_DIR = './assets/';
+    const CLIENT_DIR = __dirname + '/client';
     
     var alive = null;
     var announcer = require(MODULES_DIR + 'announcer').init(ASSETS_DIR);
@@ -20,7 +21,7 @@ var Annabelle = (function init() {
     config.tasks = [];
     
     
-    var server = fork('server.js');
+    var server = fork('server.js', [ CLIENT_DIR ]);
 
     var heart;
     var heartBeat = (function beat() {

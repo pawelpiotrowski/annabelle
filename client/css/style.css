@@ -1,0 +1,29 @@
+* { margin: 0; padding: 0; font-size: 100% }
+
+@font-face {
+    font-family: "Led Regular W00 Regular";
+    src: url("/fonts/e4fa5b5e-ebf3-4d56-a390-cd625e07b9be.woff2") format("woff2"),
+         url("/fonts/ed81e1e5-2967-4eec-a206-15992028ab56.woff") format("woff"),
+         url("/fonts/90748c63-62d6-4737-8069-1f7cf5c537a0.ttf") format("truetype");
+}
+
+html, body, .content {
+    font-family: "Led Regular W00 Regular", Consolas, 'Lucida Console', 'DejaVu Sans Mono', monospace;
+    height: 100%;
+    line-height: 1;
+    width: 100%;
+}
+.content {
+    align-items: center;
+    background: black;
+    color: red;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    z-index: 1;
+}
+.text-stripe {
+    font-size: 50vh;
+    margin-left: 100vw;
+    white-space: nowrap;
+}

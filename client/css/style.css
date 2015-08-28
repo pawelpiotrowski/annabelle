@@ -25,5 +25,6 @@ html, body, .content {
 .text-stripe {
     font-size: 50vh;
     margin-left: 100vw;
+    transform: translate3d(0,0,0);
     white-space: nowrap;
 }

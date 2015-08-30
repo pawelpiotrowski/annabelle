@@ -75,3 +75,7 @@ var server = (function() {
 })();
 
 server.start();
+
+process.on('disconnect', function() {
+    process.exit();
+});

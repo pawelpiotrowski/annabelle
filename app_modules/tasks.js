@@ -12,7 +12,11 @@ var tasks = (function() {
         },
         {
             name: 'connectivity',
-            useEmitter: STR_ONLY // 'yes', 'no', 'only'
+            useEmitter: STR_ONLY
+        },
+        {
+            name: 'intruder',
+            useEmitter: STR_ONLY
         }
     ];
     const DEFAULT_TASK_INDEX = 0;

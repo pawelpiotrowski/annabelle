@@ -38,7 +38,7 @@ var Annabelle = (function init() {
                 var msg = 'Got hub message from: ' + hubEvent.from;
                 console.log(chalk.blue(msg));
                 announcer.announce(hubEvent.payload);
-                server.send(hubEvent.payload);
+                server.send(hubEvent);
                 msg = null;
                 hubEvent = null;
             },

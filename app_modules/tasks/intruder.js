@@ -8,15 +8,15 @@ var intruder = (function() {
     var activeLed = -1;
     var leds = [
         {
-            condition: 4,
+            condition: 20,
             pin: 10
         },
         {
-            condition: 11,
+            condition: 32,
             pin: 11
         },
         {
-            condition: 20,
+            condition: 45,
             pin: 12
         }
     ];

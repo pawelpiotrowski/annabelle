@@ -10,7 +10,7 @@
     var dstep = 0;
 
     var msg = document.getElementById('message');
-    var socket = io.connect('http://localhost:8000');
+    var socket = io.connect('http://localhost:2357');
 
     var start = null;
 

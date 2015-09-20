@@ -18,6 +18,8 @@
         setTimeout(function() {
             amount = 0;
             dstep = 0;
+            // this dot keeps container expanded
+            // needed to get client bounding rect
             msg.innerHTML = '.';
             msg.style.transform = 'translate3d(0,0,0)';
             animating = false;
